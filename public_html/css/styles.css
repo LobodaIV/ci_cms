@@ -1,0 +1,11 @@
+h1,h2,h3 {font-family: georgia serif;}
+
+.pubdate {font-style: italic; font-size: 12px;}
+
+.sidebar ul { list-style-type:none; }
+.sidebar ul li a { text-decoration: none; }
+.sidebar a h3 { color: black;}
+.sidebar a h2 { font-style: italic; font-size: 14px; color: black;}
+.sidebar h3{ margin-bottom: 0; }
+
+.pagination {position: absolute;left:350px; margin-top: 10px;margin-bottom:10px; font-size:26px;}
