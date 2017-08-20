@@ -1,16 +1,26 @@
 <?php
 
-class Page extends Frontend_Controller {
+class Page extends CI_Controller {
 	public function __construct() {
 		parent::__construct();
+
+		$this->data['errors'] = array();
+		$this->load->model('page_m');
+		$this->load->model('article_m');
+		//Fetch navigation
+		$this->data['menu'] = $this->page_m->get_nested();
+		$this->data['news_archive_link'] = $this->page_m->get_archive_link();
+		$this->data['meta_title'] = config_item('site_name');
 	}
 
 	public function index() {
-		
-		$this->data['page'] = $this->page_m->get_by(
-		array('tag' => (string)$this->uri->segment(1)),true);
-		count($this->data['page']) || show_404(current_url());
+		$tag = (string)$this->uri->segment(1);
+		$this->data['page'] = $this->page_m->get_page_by_tag($tag);
 
+		if(!$this->data['page']) {
+			show_404(current_url());
+		}
+		
 		add_meta_title($this->data['page']->title);
 
 		//Get the page data
@@ -32,9 +42,9 @@ class Page extends Frontend_Controller {
 
 	private function _home() {
 		$this->load->model('article_m');
-		//$this->db->where('pubdate <=', date('Y-m-d')); 
+		$this->db->where('pubdate <=', date('Y-m-d')); 
 		$this->db->limit(6);
-		$this->data['articles'] = $this->article_m->get();
+		$this->data['articles'] = $this->article_m->get_news();
 	}
 
 	private function _news_archive() {
@@ -59,7 +69,7 @@ class Page extends Frontend_Controller {
 		}
 
 		$this->db->limit($perpage, $offset); 
-		$this->data['articles'] = $this->article_m->get();
+		$this->data['articles'] = $this->article_m->get_news();
 	}	
 
 }

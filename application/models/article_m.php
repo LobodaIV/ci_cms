@@ -1,8 +1,7 @@
 <?php
 
-class Article_m extends My_Model {
-	protected $_table_name = 'articles';
-	protected $_order_by = 'pubdate desc, id desc';
+class Article_m extends CI_Model {
+
 	protected $_timestamps = true;
 	public $rules = array(
 		'pubdate' => array(
@@ -27,7 +26,6 @@ class Article_m extends My_Model {
 			),
 	);
 
-
 	public function get_new() {
 		$article = new stdClass();
 		$article->title = '';
@@ -37,15 +35,45 @@ class Article_m extends My_Model {
 		return $article;
 	}
 
-	public function set_published() {
-		$this->db->where('pubdate <=', date('Y-m-d'));
-	}
 
 	public function get_recent_news($limit = 3) {
 		$limit = (int)$limit;
-		$this->set_published();
+		$this->db->where('pubdate <=', date('Y-m-d'));
 		$this->db->limit($limit);
-		return parent::get();
+		$query = $this->db->get('articles');;
+		return $query->result();
 	}
 
+	public function get_news() {
+		$query = $this->db->get('articles');
+		return $query->result();
+	}
+
+	public function get_news_by_id($id) {
+		$query = $this->db->get_where('articles', array("id" => $id));
+		return $query->row();
+	}
+
+	public function create_new($data) {
+		$now = date('Y-m-d H:i:s');
+		$data['created'] = $now;
+		$this->db->set($data);
+		$this->db->insert('articles');
+		return $this->db->insert_id();
+	}
+
+	public function update($id,$data) {
+		$now = date('Y-m-d H:i:s');
+		$data['modified'] = $now;
+		$this->db->set($data);
+		$this->db->where('id',$id);
+		$this->db->update('articles');
+		return $id;
+	}
+
+	public function delete($id) {
+		$this->db->where('id',$id);
+		$this->db->limit(1);
+		$this->db->delete('articles');
+	}
 }

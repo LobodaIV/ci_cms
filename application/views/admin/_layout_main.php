@@ -20,18 +20,6 @@
             <li><?=anchor('admin/page/order', 'order pages')?></li>
             <li><?=anchor('admin/article', 'news articles')?></li>
             <li><?=anchor('admin/user', 'users')?></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">Separated link</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#">One more separated link</a></li>
-              </ul>
-            </li>
           </ul>
         </div><!-- /.navbar-collapse -->
 
@@ -49,8 +37,8 @@
           <!-- Sidebar -->
           <div class="col-md-3">
             <section>
-              <?=mailto('igore4ek061@gmail.com',
-              '<span class="glyphicon glyphicon-user"></span> igore4ek061@gmail.com')?><br>
+              <?=mailto($this->session->userdata('email'),
+              '<span class="glyphicon glyphicon-user"></span>' . $this->session->userdata('email'))?><br>
               <?=anchor('admin/user/logout', 
               '<span class="glyphicon glyphicon-off"></span> logout')?><br>
             </section>

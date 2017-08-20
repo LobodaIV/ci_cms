@@ -1,13 +1,19 @@
 <?php
 
-class User extends Admin_Controller {
+class User extends CI_Controller {
 	public function __construct() {
 		parent::__construct();
+		$this->load->model('user_m');
+		$this->load->library('session');
+		$this->load->helper('form');
+		$this->load->library('form_validation');
+		$this->load->library('session');
+		$this->data['meta_title'] = "Dashboard";
 	}
 
 	//Get all users
 	public function index() {
-		$this->data['users'] = $this->user_m->get();
+		$this->data['users'] = $this->user_m->get_all_users();
 		//Load view
 		$this->data['subview'] = 'admin/user/index';
 		$this->load->view('admin/_layout_main', $this->data);
@@ -17,7 +23,7 @@ class User extends Admin_Controller {
 
 		//Get a user or set a new one
 		if ($id) {
-			$this->data['user'] = $this->user_m->get($id);
+			$this->data['user'] = $this->user_m->get_by_id($id);
 			count($this->data['user']) || $this->data['errors'][] = 'User could not be found';
 		} else {
 			$this->data['user'] = $this->user_m->get_new();
@@ -31,10 +37,23 @@ class User extends Admin_Controller {
 		$this->form_validation->set_rules($rules);
 		//save user
 		if ($this->form_validation->run() == true) {
-			$data = $this->user_m->array_from_post(array('name','email','password'));
-			$data['password'] = $this->user_m->hash($data['password']);
-			$this->user_m->save($data,$id);
-			redirect('admin/user');
+
+			foreach ($_POST as $key => $value) {
+				if(in_array($key,array('name','email','password'))) {
+					$data[$key] = $value;	
+				}
+			}
+			//$data = $this->user_m->array_from_post(array('name','email','password'));
+			if(!$id) {
+				$data['password'] = $this->user_m->hash($data['password']);
+				$this->user_m->create_user($data);
+				redirect('admin/user');
+			} else {
+				$data['password'] = $this->user_m->hash($data['password']);
+				$this->user_m->update_user($id,$data);
+				redirect('admin/user');
+			}
+
 		}
 
 		//Load the view
@@ -43,7 +62,7 @@ class User extends Admin_Controller {
 	}
 
 	public function delete($id) {
-		$this->user_m->delete($id);
+		$this->user_m->delete_user($id);
 		redirect('admin/user');
 	}
 
@@ -79,13 +98,8 @@ class User extends Admin_Controller {
 
 	public function _unique_email($str) {
 		
-		// get id from uri
-		$id = $this->uri->segment(4);
-		$this->db->where('email',$this->input->post('email'));
-		//assume that we have no user id
-		!$id || $this->db->where('id !=',$id );
-
-		$user = $this->user_m->get();  			
+		$email = $this->input->post('email');
+		$user = $this->user_m->check_email($email);  			
 		if(count($user)) {
 			$this->form_validation->set_message('_unique_email','%s should be unique');
 			return false;

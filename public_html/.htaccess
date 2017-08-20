@@ -1,5 +1,5 @@
 <IfModule mod_rewrite.c>
 	RewriteEngine on
-	RewriteCond $1 !^(index\.php|img|css|robots\.txt)
+	RewriteCond $1 !^(index\.php|img|css|js|fonts|robots\.txt)
 	RewriteRule ^(.*)$ index.php/$1 [L]
 </IfModule>

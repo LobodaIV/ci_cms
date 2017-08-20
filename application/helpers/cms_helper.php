@@ -1,6 +1,4 @@
 <?php
-
-
 function add_meta_title($str) {
 	$CI = &get_instance();
 	$CI->data['meta_title'] = e($str) . ' - ' . $CI->data['meta_title'];
@@ -22,17 +20,6 @@ function e($str) {
 function article_link($article) {
  	return 'article/' . intval($article->id) . '/' . e($article->tag);
  }
-
-// function article_links($articles) {
-// 	$str = '<ul>';
-// 	foreach ($articles as $article) {
-// 		$url = article_link($article);
-// 		$str .= '<li><a href="' . base_url() . $url . '">' . $article->title . '</a></li>';
-// 	}
-// 	$str .= '</ul>';
-
-// 	return $str;
-// }
 
 function get_snippet($article, $numwords = 50) {
 	$str = '';

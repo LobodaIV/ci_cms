@@ -1,11 +1,29 @@
 <?php
 
-class Page extends Admin_Controller {
+class Page extends CI_Controller {
 
 
 	public function __construct() {
 		parent::__construct();
 		$this->load->model('page_m');
+		$this->data['meta_title'] = 'Dashboard CMS';
+		$this->load->helper('form');
+		$this->load->library('form_validation');
+		$this->load->library('session');
+		$this->load->model('user_m');
+
+		// Login check 
+		$exception_uris = array(
+			'admin/user/login',
+			'admin/user/logout'
+		);
+
+		if (in_array(uri_string(), $exception_uris) == false) {
+			if ($this->user_m->loggedin() == false) {
+				redirect('admin/user/login');
+		 	}
+		}
+
 	}
 
 	
@@ -39,7 +57,7 @@ class Page extends Admin_Controller {
 
 		//Get a page or set a new one
 		if ($id) {
-			$this->data['page'] = $this->page_m->get($id);
+			$this->data['page'] = $this->page_m->get_page_by_id($id);
 			count($this->data['page']) || $this->data['errors'][] = 'page could not be found';
 		} else {
 			$this->data['page'] = $this->page_m->get_new();
@@ -53,13 +71,22 @@ class Page extends Admin_Controller {
 		
 		//Process the form
 		$this->form_validation->set_rules($rules);
-		//save page
 		if ($this->form_validation->run() == true) {
-			$data = $this->page_m->array_from_post(array(
-				'title','tag','body','template','parent_id'
-			));
-			$this->page_m->save($data,$id);
-			redirect('admin/page');
+
+			foreach ($_POST as $key => $value) {
+				if(in_array($key,array('title','tag','body','template','parent_id'))) {
+					$data[$key] = $value;	
+				}
+			}
+
+			if(!$id) {
+				$this->page_m->create_page($data);
+				redirect('admin/page');
+			} else {
+				$this->page_m->update($id,$data);
+				redirect('admin/page');
+			}
+
 		}
 
 		//Load the view
@@ -74,15 +101,10 @@ class Page extends Admin_Controller {
 
 	public function _unique_tag($str) {
 		
-		// get id from uri
-		$id = $this->uri->segment(4);
-		$this->db->where('tag',$this->input->post('tag'));
-		//assume that we have no page id
-		!$id || $this->db->where('id !=',$id );
-
-		$page = $this->page_m->get();  			
-		if(count($page)) {
-			$this->form_validation->set_message('_unique_tag','%s should be unique');
+		$tag = $this->input->post('tag');
+		$page = $this->page_m->get_page_by_tag($tag);
+		if (count($page)) {
+			$this->form_validation->set_message('_unique_tag', '%s should be unique');
 			return false;
 		}
 

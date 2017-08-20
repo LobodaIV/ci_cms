@@ -20,7 +20,7 @@
     </tr>
     <tr>
     	<td></td>
-    	<td><?=form_submit('submit', 'Save', 'class="btn btn-primary"')?></td>
+    	<td><?=form_submit('submit', 'Create', 'class="btn btn-primary"')?></td>
     </tr>
     </table>
 <?=form_close();?>
